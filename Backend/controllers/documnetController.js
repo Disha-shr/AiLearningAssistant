@@ -168,6 +168,37 @@ export const getDocument = async (req, res, next) => {
 
     try {
 
+        const document = await Document.findOne({
+            _id: req.params.id,
+            userId: req.user._id
+        });
+
+        if(!document) {
+            return res.status(404).json({
+                success: false,
+                error: 'Document not found',
+                statusCode: 404
+            });
+        }
+
+        // get counts of associated flashcards and quizzes
+        const flashcardCount = await Flashcard.countDocuments({documentId: document._id, userId: req.user._id});
+        const quizCount = await Quiz.countDocument({ documentId: document._id, userId: req.user._id});
+
+        // Update last accessed
+        document.lastAccessed = Date.now();
+        await document.save();
+
+        // combine document data with counts
+        const documentData = document.toObject();
+        docuementData.flashcardCount = flashcardCount;
+        documentData.quizCount = quizCount;
+
+        res.status(200).json ({
+            success: true,
+            data: documentData
+        });
+
     } catch (error) {
         next(error);
     }
@@ -180,20 +211,29 @@ export const getDocument = async (req, res, next) => {
 export const deleteDocument = async (req, res, next) => {
 
     try {
+        const document = await Document.findOne({
+            _id: req.params.id,
+            userId: req.user._id
+        });
 
-    } catch (error) {
-        next(error);
-    }
-};
+        if(!document) {
+            return res.status(404).json({
+                success: false,
+                error: 'Document not found',
+                statusCode: 404
+            });
+        }
 
-//@desc update document
-//@route put/api/docuents/:id
-//@access privat
+        // Delete file from  filesystem
+        await fs.unlink(document.filePath).catch(() => {});
 
-export const updateDocument = async (req, res, next) => {
+        // Delete document
+        await document.deleteOne();
 
-    try {
-
+        res.status(200).json({
+            success: true,
+            message: 'Document deleted successfully'
+        });
     } catch (error) {
         next(error);
     }
