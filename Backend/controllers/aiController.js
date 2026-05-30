@@ -3,7 +3,7 @@ import Flashcard from "../models/Flashcard.js";
 import Quiz from "../models/Quiz.js";
 import ChatHistory from '../models/ChatHistory.js';
 import * as geminiService from '../utils/geminiServices.js';
-import { chunkText, findRelevantChunks, findRelevantChunks } from "../utils/textChunker.js";
+import { chunkText, findRelevantChunks } from "../utils/textChunker.js";
 
 
 //@desc Generate flashcards from document
@@ -315,7 +315,34 @@ export const explainConcept = async (req, res, next ) => {
 
 export const getChatHistory  = async (req, res, next ) => {
     try{
+        const { documentId } = req.params;
 
+        if( !documentId) {
+            return  res.status(400).json({
+            success: false,
+            error: 'Please provide documentId',
+            statusCode: 400
+            });
+        }
+
+        const chatHistory = await ChatHistory.findOne({
+            userId: req.user._id,
+            documentId: documentId
+        }).select('messages'); // only retrieve the message array
+
+        if(!chatHistory) {
+            return res.status(200).json({
+                success: true,
+                data: [], // Return an empty array if no chat history found
+                message: 'No chat history found for this document'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: chatHistory.message,
+            message: 'Chat history retrived successfully '
+        });
     }
     catch(error) {
         next(error);
