@@ -15,8 +15,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 
 
 const App = () =>{
- const isAuthenticated=true
- const loading=false
+  const {isAuthenticated, loading} = useAuth()
  if(loading) {
   return (
     <div className="flex items-center justify-center h-screen">
