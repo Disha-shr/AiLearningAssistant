@@ -1,5 +1,5 @@
 import axiosInstance from "../utils/axiosIntance";
-import { API_PATHS } from '../utils/apiPaths';
+import { API_PATHS } from '../utils/apiPath.js';
 
 
 // Register User
