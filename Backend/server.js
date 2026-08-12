@@ -1,20 +1,19 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import errorHandler from './middleware/errorHandler.js';
-import connectDB from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
-import documentRoutes from './routes/documnetRoutes.js';
-import flashcardRoutes from './routes/flashcardRoutes.js';
-import aiRoutes from './routes/aiRoutes.js';
-import quizeRoutes from './routes/quizRoutes.js';
-import progressRoutes from './routes/progressRoutes.js';
-
+import errorHandler from "./middleware/errorHandler.js";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
+import documentRoutes from "./routes/documnetRoutes.js";
+import flashcardRoutes from "./routes/flashcardRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
+import quizeRoutes from "./routes/quizRoutes.js";
+import progressRoutes from "./routes/progressRoutes.js";
 
 // ES6 module __dirname alternative
 const __filename = fileURLToPath(import.meta.url);
@@ -28,53 +27,59 @@ connectDB();
 
 // Middleware
 app.use(
-    cors({
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        allowedHeaders: ["Content-Type", "Authorization"],
-        credentials: true,
-    })
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Test route
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "API is running",
+  });
+});
+
 // Static folder for uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/documents', documentRoutes);
-app.use('/api/flashcards', flashcardRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/quizzes', quizeRoutes);
-app.use('/api/progress',progressRoutes);
-
-
+app.use("/api/auth", authRoutes);
+app.use("/api/documents", documentRoutes);
+app.use("/api/flashcards", flashcardRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/quizzes", quizeRoutes);
+app.use("/api/progress", progressRoutes);
 
 // Error handler middleware
 app.use(errorHandler);
 
 // 404 handler
 app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        error: 'Route not found',
-        statusCode: 404
-    });
+  res.status(404).json({
+    success: false,
+    error: "Route not found",
+    statusCode: 404,
+  });
 });
 
 // Start server
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
-    console.log(
-        `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-    );
+  console.log(
+    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+  );
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-    console.error(`Error: ${err.message}`);
-    process.exit(1);
+process.on("unhandledRejection", (err) => {
+  console.error(`Error: ${err.message}`);
+  process.exit(1);
 });

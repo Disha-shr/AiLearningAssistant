@@ -1,5 +1,5 @@
 import React from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/Authcontext";
 import {Bell, User, Menu} from 'lucide-react'
 
 const Header = ({ toggleSidebar }) => {
@@ -42,3 +42,4 @@ const Header = ({ toggleSidebar }) => {
         </div>
     </header>
 }
+export default Header;

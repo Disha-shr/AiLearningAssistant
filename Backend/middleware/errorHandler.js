@@ -1,4 +1,3 @@
-
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || "Server Error";
@@ -11,16 +10,21 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    message = `${field} already exists`;
+    const field = Object.keys(err.keyValue || {})[0];
+
+    message = field
+      ? `${field} already exists`
+      : "Duplicate value already exists";
+
     statusCode = 400;
   }
 
   // Mongoose validation error
   if (err.name === "ValidationError") {
     message = Object.values(err.errors)
-      .map((val) => val.message)
+      .map((error) => error.message)
       .join(", ");
+
     statusCode = 400;
   }
 
@@ -41,15 +45,22 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 401;
   }
 
-  console.error('Error:',{
-    message:err.message,
-    stack:process.env.NODE_ENV === 'development'? err.stack : omitUndefined
+  // Console error
+  console.error("Error:", {
+    message: err.message,
+    stack:
+      process.env.NODE_ENV === "development"
+        ? err.stack
+        : null,
   });
 
   res.status(statusCode).json({
     success: false,
     message,
-    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+    stack:
+      process.env.NODE_ENV === "production"
+        ? null
+        : err.stack,
   });
 };
 

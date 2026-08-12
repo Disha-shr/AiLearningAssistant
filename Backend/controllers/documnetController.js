@@ -42,12 +42,12 @@ export const uploadDocument = async (req, res, next) => {
             userId: req.user._id,
             title,
             fileName: req.file.originalname,
-            filePath: fileUrl, //store the URL instead of the local path
+            filePath: fileUrl,
             fileSize: req.file.size,
             status: 'processing'
         });
 
-        //process PDF in background (in production, use a queue like Bull)
+        //process PDF in background
         processPDF(document._id, req.file.path).catch(err => {
             console.error('PDF processing error:', err);
         });
@@ -69,10 +69,10 @@ export const uploadDocument = async (req, res, next) => {
     }
 };
 
+
 // Helper function to process PDF
 
 const processPDF = async (documentId, filePath) => {
-
     try {
 
         const { text } = await extractTextFromPDF(filePath);
@@ -105,7 +105,6 @@ const processPDF = async (documentId, filePath) => {
 //@access Private
 
 export const getDocuments = async (req, res, next) => {
-
     try {
 
         const documents = await Document.aggregate([
@@ -160,12 +159,12 @@ export const getDocuments = async (req, res, next) => {
     }
 };
 
+
 //@desc get single document with chunks
-// @route get/api/docuemnts/:id
-//@access privat
+// @route get/api/documents/:id
+//@access Private
 
 export const getDocument = async (req, res, next) => {
-
     try {
 
         const document = await Document.findOne({
@@ -173,7 +172,7 @@ export const getDocument = async (req, res, next) => {
             userId: req.user._id
         });
 
-        if(!document) {
+        if (!document) {
             return res.status(404).json({
                 success: false,
                 error: 'Document not found',
@@ -182,8 +181,15 @@ export const getDocument = async (req, res, next) => {
         }
 
         // get counts of associated flashcards and quizzes
-        const flashcardCount = await Flashcard.countDocuments({documentId: document._id, userId: req.user._id});
-        const quizCount = await Quiz.countDocument({ documentId: document._id, userId: req.user._id});
+        const flashcardCount = await Flashcard.countDocuments({
+            documentId: document._id,
+            userId: req.user._id
+        });
+
+        const quizCount = await Quiz.countDocuments({
+            documentId: document._id,
+            userId: req.user._id
+        });
 
         // Update last accessed
         document.lastAccessed = Date.now();
@@ -191,10 +197,10 @@ export const getDocument = async (req, res, next) => {
 
         // combine document data with counts
         const documentData = document.toObject();
-        docuementData.flashcardCount = flashcardCount;
+        documentData.flashcardCount = flashcardCount;
         documentData.quizCount = quizCount;
 
-        res.status(200).json ({
+        res.status(200).json({
             success: true,
             data: documentData
         });
@@ -204,19 +210,19 @@ export const getDocument = async (req, res, next) => {
     }
 };
 
+
 //@desc delete document
-//@route delete/api/docuents/:id
-//@access privat
+//@route delete/api/documents/:id
+//@access Private
 
 export const deleteDocument = async (req, res, next) => {
-
     try {
         const document = await Document.findOne({
             _id: req.params.id,
             userId: req.user._id
         });
 
-        if(!document) {
+        if (!document) {
             return res.status(404).json({
                 success: false,
                 error: 'Document not found',
@@ -224,7 +230,7 @@ export const deleteDocument = async (req, res, next) => {
             });
         }
 
-        // Delete file from  filesystem
+        // Delete file from filesystem
         await fs.unlink(document.filePath).catch(() => {});
 
         // Delete document
@@ -234,6 +240,7 @@ export const deleteDocument = async (req, res, next) => {
             success: true,
             message: 'Document deleted successfully'
         });
+
     } catch (error) {
         next(error);
     }
