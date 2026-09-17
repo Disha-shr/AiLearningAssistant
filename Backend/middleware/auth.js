@@ -21,16 +21,16 @@ const protect = async (req, res, next) => {
             }
 
             next();
-        }catch (error) {
+        } catch (error) {
             console.error('Auth middleware error:', error.message);
 
-            if(error.name === 'ToeknExpiredError') {
+            if(error.name === 'TokenExpiredError') {
                 return res.status(401).json ({
                     success: false,
-                    error: 'Token has expired',
-                    statusCode: 401
-                });
-            }
+                error: 'Token has expired',
+                statusCode: 401
+            });
+        }
 
             return res.status(401).json({
                 success: false,
@@ -38,7 +38,7 @@ const protect = async (req, res, next) => {
                 statusCode: 401
             });
         }
-        }
+    }
         if(!token) {
             return res.status(401).json({
                 success: false,
