@@ -166,8 +166,28 @@ export const updateProfile = async (req, res, next) => {
       });
     }
 
-    if (username) user.username = username;
-    if (email) user.email = email.toLowerCase();
+    if (username) {
+      user.username = username;
+    }
+
+    if (email) {
+      const normalizedEmail = email.toLowerCase();
+
+      const emailExists = await User.findOne({
+        email: normalizedEmail,
+        _id: { $ne: req.user._id },
+      });
+
+      if (emailExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already registered",
+        });
+      }
+
+      user.email = normalizedEmail;
+    }
+
     if (profileImage !== undefined) {
       user.profileImage = profileImage;
     }
