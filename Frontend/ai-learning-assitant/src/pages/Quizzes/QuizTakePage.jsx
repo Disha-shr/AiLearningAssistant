@@ -5,7 +5,7 @@ import quizService from '../../services/quizService';
 import PageHeader from '../../components/common/PageHeader';
 import Spinner from '../../components/common/Spinner';
 import toast from 'react-hot-toast';
-import Button from '../../components/common/Button';
+import Button from '../../components/common/button';
 
 const QuizTakePage = () => {
   const { quizId } = useParams();

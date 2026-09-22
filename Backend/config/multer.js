@@ -22,7 +22,11 @@ const storage = multer.diskStorage({
         const uniqueSuffix =
             Date.now() + "-" + Math.round(Math.random() * 1E9);
 
-        cb(null, `${uniqueSuffix}-${file.originalname}`);
+        const safeFileName = path
+            .basename(file.originalname)
+            .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+        cb(null, `${uniqueSuffix}-${safeFileName}`);
     }
 });
 
