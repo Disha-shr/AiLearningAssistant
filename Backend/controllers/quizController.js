@@ -65,6 +65,13 @@ export const submitQuiz = async (req, res, next) => {
                 statusCode: 400,
             });
         }
+        if (answers.length === 0) {
+            return res.status(400).json({
+            success: false,
+            error: "Please answer at least one question",
+            statusCode: 400,
+        });
+    }
 
         const quiz = await Quiz.findOne({
             _id: req.params.id,
@@ -76,6 +83,13 @@ export const submitQuiz = async (req, res, next) => {
                 success: false,
                 error: "Quiz not found",
                 statusCode: 404,
+            });
+        }
+        if (answers.length !== quiz.questions.length) {
+            return res.status(400).json({
+                success: false,
+                error: "Please answer all questions before submitting",
+                statusCode: 400,
             });
         }
 
