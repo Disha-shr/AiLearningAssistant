@@ -29,19 +29,13 @@ export const register = async (req, res, next) => {
 
     // Check if user already exists
     const userExists = await User.findOne({
-      $or: [
-        { email: email.toLowerCase() },
-        { username },
-      ],
+      email: email.toLowerCase(),
     });
 
     if (userExists) {
       return res.status(400).json({
         success: false,
-        message:
-          userExists.email === email.toLowerCase()
-            ? "Email already registered"
-            : "Username already taken",
+        message: "Email already registered",
       });
     }
 
