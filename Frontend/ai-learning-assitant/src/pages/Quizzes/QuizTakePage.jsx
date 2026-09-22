@@ -58,6 +58,11 @@ const QuizTakePage = () => {
 
   // Submit Quiz
   const handleSubmitQuiz = async () => {
+    if (Object.keys(selectedAnswers).length !== quiz.questions.length) {
+      toast.error("Please answer all questions before submitting.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
